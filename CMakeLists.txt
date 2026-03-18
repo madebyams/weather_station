@@ -1,0 +1,83 @@
+cmake_minimum_required(VERSION 3.22)
+
+#
+# This file is generated only once,
+# and is not re-generated if converter is called multiple times.
+#
+# User is free to modify the file as much as necessary
+#
+
+# Setup compiler settings
+set(CMAKE_C_STANDARD 11)
+set(CMAKE_C_STANDARD_REQUIRED ON)
+set(CMAKE_C_EXTENSIONS ON)
+
+
+# Define the build type
+if(NOT CMAKE_BUILD_TYPE)
+    set(CMAKE_BUILD_TYPE "Debug")
+endif()
+
+# Set the project name
+set(CMAKE_PROJECT_NAME WeatherStation)
+
+# Enable compile command to ease indexing with e.g. clangd
+set(CMAKE_EXPORT_COMPILE_COMMANDS TRUE)
+
+# Core project settings
+project(${CMAKE_PROJECT_NAME})
+message("Build type: " ${CMAKE_BUILD_TYPE})
+
+# Fetch STM32CubeF1 (CMSIS + HAL) so Drivers/ isn't in-repo
+include(FetchContent)
+set(STM32CUBE_F1_GIT_REPOSITORY "https://github.com/STMicroelectronics/STM32CubeF1.git"
+    CACHE STRING "STM32CubeF1 git repository")
+set(STM32CUBE_F1_GIT_TAG "v1.8.5"
+    CACHE STRING "STM32CubeF1 git tag/commit")
+
+FetchContent_Declare(stm32cubef1
+    GIT_REPOSITORY ${STM32CUBE_F1_GIT_REPOSITORY}
+    GIT_TAG        ${STM32CUBE_F1_GIT_TAG}
+    GIT_SHALLOW    TRUE
+)
+FetchContent_MakeAvailable(stm32cubef1)
+set(STM32CUBE_F1_DIR "${stm32cubef1_SOURCE_DIR}")
+
+# Enable CMake support for ASM and C languages
+enable_language(C ASM)
+
+# Create an executable object type
+add_executable(${CMAKE_PROJECT_NAME})
+
+# Add STM32CubeMX generated sources
+add_subdirectory(cmake/stm32cubemx)
+
+# Link directories setup
+target_link_directories(${CMAKE_PROJECT_NAME} PRIVATE
+    # Add user defined library search paths
+)
+
+# Add sources to executable
+target_sources(${CMAKE_PROJECT_NAME} PRIVATE
+    # Add user sources here
+)
+
+# Add include paths
+target_include_directories(${CMAKE_PROJECT_NAME} PRIVATE
+    # Add user defined include paths
+)
+
+# Add project symbols (macros)
+target_compile_definitions(${CMAKE_PROJECT_NAME} PRIVATE
+    # Add user defined symbols
+)
+
+# Remove wrong libob.a library dependency when using cpp files
+list(REMOVE_ITEM CMAKE_C_IMPLICIT_LINK_LIBRARIES ob)
+
+# Add linked libraries
+target_link_libraries(${CMAKE_PROJECT_NAME}
+    stm32cubemx
+
+    # Add user defined libraries
+)
