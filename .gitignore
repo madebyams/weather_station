@@ -1,6 +1,13 @@
-.settings
-Debug
-.cproject
-.mxproject
-.project
-test\ Debug.launch
+.idea/
+.DS_Store
+
+# CMake build outputs
+build/
+cmake-build-*/
+**/CMakeFiles/
+**/CMakeCache.txt
+**/cmake_install.cmake
+**/*.ninja
+**/*.ninja_deps
+**/*.ninja_log
+
