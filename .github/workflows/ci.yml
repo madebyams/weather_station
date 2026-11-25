@@ -1,0 +1,55 @@
+name: CI
+
+# Converted from the former builds.sr.ht manifest (.build.yml).
+# Each sourcehut task is one step; $HOME is the workspace, as on sourcehut.
+
+on:
+  push:
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    container:
+      image: debian:stable
+    env:
+      DEBIAN_FRONTEND: noninteractive
+    defaults:
+      run:
+        shell: bash -xe {0}
+    steps:
+      - name: Install packages
+        run: |
+          apt-get update
+          apt-get install -y git ca-certificates \
+            build-essential \
+            cmake \
+            git \
+            gcc-arm-none-eabi \
+            libnewlib-arm-none-eabi
+
+      - uses: actions/checkout@v4
+        with:
+          path: "weather_station"
+          submodules: recursive
+          fetch-depth: 0
+
+      - name: "build-firmware"
+        run: |
+          export HOME="$GITHUB_WORKSPACE"
+          cd "$HOME"
+          cd "$HOME/weather_station"
+          cmake --preset Debug
+          cmake --build --preset Debug --parallel
+          tar -czf firmware-artifacts.tar.gz build/Debug
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: artifacts
+          if-no-files-found: warn
+          path: |
+            weather_station/firmware-artifacts.tar.gz
